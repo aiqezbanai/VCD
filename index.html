@@ -655,7 +655,7 @@
       </aside>
     </div>
 
-    <!-- Custom Layout Controls: 1. Left, 2. Rotate (center), 3. Right; under them: Fast Drop & Step Down; 4. Pause -->
+    <!-- Custom Layout Controls: 1. Left, 2. Rotate (center), 3. Right; under them: Step Down (left) & Fast Drop (right); 4. Pause -->
     <div class="touch-controls" aria-label="Game Controls">
       <div class="dpad-cluster">
         <div class="dpad-top-row">
@@ -664,8 +664,8 @@
           <button class="touch-btn" id="touch-right" type="button">→<span>Right</span></button>
         </div>
         <div class="drop-row">
-          <button class="touch-btn touch-btn-wide" id="touch-drop" type="button">⬇<span>Fast Drop</span></button>
           <button class="touch-btn touch-btn-wide" id="touch-step-down" type="button">↓<span>Step Down</span></button>
+          <button class="touch-btn touch-btn-wide" id="touch-drop" type="button">⬇<span>Fast Drop</span></button>
         </div>
       </div>
       <div class="utility-row">
@@ -1336,8 +1336,8 @@
       bindButtonAction("touch-left", () => moveHorizontal(-1));
       bindButtonAction("touch-rotate", () => rotatePiece());
       bindButtonAction("touch-right", () => moveHorizontal(1));
-      bindButtonAction("touch-drop", () => hardDrop());
       bindButtonAction("touch-step-down", () => stepDownOneRow());
+      bindButtonAction("touch-drop", () => hardDrop());
       bindButtonAction("touch-pause", () => togglePause());
 
       // Start Game
