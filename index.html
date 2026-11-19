@@ -58,7 +58,7 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: clamp(6px, 1.2dvh, 16px) clamp(10px, 2vw, 24px);
+      padding: clamp(6px, 1.2dvh, 16px) clamp(8px, 1.6vw, 22px);
       gap: clamp(8px, 1.2dvh, 14px);
       width: 100%;
       margin: 0 auto;
@@ -70,7 +70,7 @@
       justify-content: center;
       gap: clamp(12px, 2vw, 26px);
       width: 100%;
-      max-width: 880px;
+      max-width: 920px;
       margin: 0 auto;
     }
 
@@ -98,8 +98,8 @@
       display: block;
       background: #090c12;
       border-radius: 8px;
-      width: clamp(235px, 38vh, 390px);
-      height: calc(clamp(235px, 38vh, 390px) * 2);
+      width: clamp(255px, 40vh, 420px);
+      height: calc(clamp(255px, 40vh, 420px) * 2);
     }
 
     /* Overlay for Pause & Game Over */
@@ -236,7 +236,7 @@
     .toggle-row {
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      justify-content: flex-start;
       gap: 8px;
       font-size: 0.78rem;
       color: var(--text-secondary);
@@ -355,7 +355,7 @@
     .touch-controls {
       display: none;
       width: 100%;
-      max-width: min(94vw, 520px);
+      max-width: min(96vw, 540px);
       flex-direction: column;
       gap: clamp(7px, 1.1dvh, 11px);
       margin: 0 auto;
@@ -370,6 +370,12 @@
     .dpad-top-row {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
+      gap: clamp(7px, 1.6vw, 12px);
+    }
+
+    .drop-row {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
       gap: clamp(7px, 1.6vw, 12px);
     }
 
@@ -414,7 +420,7 @@
 
     .touch-btn-wide {
       width: 100%;
-      padding: clamp(11px, 1.6dvh, 16px) 12px;
+      padding: clamp(11px, 1.6dvh, 16px) 10px;
     }
 
     .touch-btn-util {
@@ -457,7 +463,7 @@
       .app-wrapper {
         justify-content: center;
         align-items: center;
-        padding: 6px 12px;
+        padding: 6px 8px;
         gap: 7px;
       }
 
@@ -467,14 +473,14 @@
         justify-content: center;
         gap: 7px;
         width: 100%;
-        max-width: 92vw;
+        max-width: 96vw;
         margin: 0 auto;
       }
 
       .side-panel {
         order: -1;
         width: 100%;
-        max-width: min(92vw, 520px);
+        max-width: min(96vw, 540px);
         flex-direction: column;
         gap: 7px;
         margin: 0 auto;
@@ -537,8 +543,8 @@
 
       .toggle-row {
         flex-direction: row;
-        justify-content: space-between;
-        gap: 6px;
+        justify-content: flex-start;
+        gap: 8px;
         font-size: 0.72rem;
       }
 
@@ -567,13 +573,13 @@
       }
 
       #board {
-        width: min(78vw, 38dvh, 290px);
-        height: calc(min(78vw, 38dvh, 290px) * 2);
+        width: min(86vw, 39dvh, 330px);
+        height: calc(min(86vw, 39dvh, 330px) * 2);
       }
 
       .touch-controls {
         display: flex;
-        max-width: min(92vw, 520px);
+        max-width: min(96vw, 540px);
       }
     }
 
@@ -625,11 +631,11 @@
 
         <div class="panel-card speed-restart-card">
           <div class="toggle-row">
-            <span>Հաստատուն արագություն</span>
-            <label class="switch" title="Անջատել արագացումը խաղի ընթացքում">
+            <label class="switch" title="Անջատել արագացումը և նվազեցնել անկման արագությունը">
               <input type="checkbox" id="constant-speed-toggle" />
               <span class="slider"></span>
             </label>
+            <span>Հաստատուն արագություն</span>
           </div>
           <button class="btn-restart-inline" id="btn-restart-inline" type="button">Restart</button>
         </div>
@@ -642,14 +648,14 @@
         <div class="panel-card controls-hint">
           <div><kbd>←</kbd> <kbd>→</kbd> Շարժել</div>
           <div><kbd>↑</kbd> Պտտել</div>
-          <div><kbd>↓</kbd> Արագացնել</div>
+          <div><kbd>↓</kbd> Տող առ տող իջացնել</div>
           <div><kbd>Space</kbd> Անկում (Drop)</div>
           <div><kbd>P</kbd> Դադար (Pause)</div>
         </div>
       </aside>
     </div>
 
-    <!-- Custom Layout Controls: 1. Left, 2. Rotate (center), 3. Right; under them: Fast Drop; 4. Pause -->
+    <!-- Custom Layout Controls: 1. Left, 2. Rotate (center), 3. Right; under them: Fast Drop & Step Down; 4. Pause -->
     <div class="touch-controls" aria-label="Game Controls">
       <div class="dpad-cluster">
         <div class="dpad-top-row">
@@ -657,7 +663,10 @@
           <button class="touch-btn" id="touch-rotate" type="button">↻<span>Rotate</span></button>
           <button class="touch-btn" id="touch-right" type="button">→<span>Right</span></button>
         </div>
-        <button class="touch-btn touch-btn-wide" id="touch-drop" type="button">⬇<span>Fast Drop</span></button>
+        <div class="drop-row">
+          <button class="touch-btn touch-btn-wide" id="touch-drop" type="button">⬇<span>Fast Drop</span></button>
+          <button class="touch-btn touch-btn-wide" id="touch-step-down" type="button">↓<span>Step Down</span></button>
+        </div>
       </div>
       <div class="utility-row">
         <button class="touch-btn touch-btn-util" id="touch-pause" type="button">⏸<span>Pause</span></button>
@@ -776,6 +785,7 @@
       const BLOCK_SIZE = 30;
       const NEXT_BLOCK_SIZE = 24;
       const BASE_DROP_INTERVAL = 800;
+      const CONSTANT_SLOW_DROP_INTERVAL = 1250;
 
       // DOM elements
       const boardCanvas = document.getElementById("board");
@@ -907,10 +917,10 @@
         };
       }
 
-      // Prevents speed from increasing during gameplay when constantSpeed is enabled
+      // Prevents speed from increasing during gameplay and keeps a slower constant drop rate
       function getDropInterval() {
         if (constantSpeed) {
-          return BASE_DROP_INTERVAL;
+          return CONSTANT_SLOW_DROP_INTERVAL;
         }
         return Math.max(90, BASE_DROP_INTERVAL - (level - 1) * 70);
       }
@@ -974,14 +984,13 @@
         }
       }
 
-      function softDrop() {
+      // Move down by one row only per press
+      function stepDownOneRow() {
         if (isPaused || isGameOver) return;
         if (isValidMove(currentPiece.matrix, currentPiece.x, currentPiece.y + 1)) {
           currentPiece.y++;
           score += 1;
           updateUI();
-        } else {
-          lockPiece();
         }
         dropCounter = 0;
       }
@@ -1283,7 +1292,7 @@
             moveHorizontal(1);
             break;
           case "ArrowDown":
-            softDrop();
+            stepDownOneRow();
             break;
           case "ArrowUp":
             rotatePiece();
@@ -1328,6 +1337,7 @@
       bindButtonAction("touch-rotate", () => rotatePiece());
       bindButtonAction("touch-right", () => moveHorizontal(1));
       bindButtonAction("touch-drop", () => hardDrop());
+      bindButtonAction("touch-step-down", () => stepDownOneRow());
       bindButtonAction("touch-pause", () => togglePause());
 
       // Start Game
