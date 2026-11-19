@@ -375,7 +375,7 @@
 
     .utility-row {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: 1fr;
       gap: clamp(7px, 1.6vw, 12px);
     }
 
@@ -649,7 +649,7 @@
       </aside>
     </div>
 
-    <!-- Custom Layout Controls: 1. Left, 2. Rotate (center), 3. Right; under them: Fast Drop; 4. Pause & Restart side-by-side -->
+    <!-- Custom Layout Controls: 1. Left, 2. Rotate (center), 3. Right; under them: Fast Drop; 4. Pause -->
     <div class="touch-controls" aria-label="Game Controls">
       <div class="dpad-cluster">
         <div class="dpad-top-row">
@@ -661,7 +661,6 @@
       </div>
       <div class="utility-row">
         <button class="touch-btn touch-btn-util" id="touch-pause" type="button">⏸<span>Pause</span></button>
-        <button class="touch-btn touch-btn-util" id="touch-restart" type="button">↺<span>Restart</span></button>
       </div>
     </div>
   </main>
@@ -1330,7 +1329,6 @@
       bindButtonAction("touch-right", () => moveHorizontal(1));
       bindButtonAction("touch-drop", () => hardDrop());
       bindButtonAction("touch-pause", () => togglePause());
-      bindButtonAction("touch-restart", () => resetGame());
 
       // Start Game
       resetGame();
