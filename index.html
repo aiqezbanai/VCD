@@ -2,8 +2,15 @@
 <html lang="hy">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#0b0e14" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Tetris" />
   <title>Tetris</title>
+  <link id="pwa-manifest" rel="manifest" />
+  <link id="apple-touch-icon" rel="apple-touch-icon" />
   <style>
     :root {
       --bg-main: #0b0e14;
@@ -41,6 +48,8 @@
       display: flex;
       flex-direction: column;
       min-height: 100dvh;
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: env(safe-area-inset-bottom);
     }
 
     .app-wrapper {
@@ -616,6 +625,105 @@
 
   <script>
     (() => {
+      // Generate iOS Apple Touch Icon and Web App Manifest for GitHub Pages PWA support
+      function setupIOSAndPWA() {
+        const iconCanvas = document.createElement("canvas");
+        iconCanvas.width = 180;
+        iconCanvas.height = 180;
+        const ictx = iconCanvas.getContext("2d");
+
+        ictx.fillStyle = "#0b0e14";
+        ictx.fillRect(0, 0, 180, 180);
+
+        const drawIconBlock = (gx, gy, color) => {
+          const s = 30;
+          const x = gx * s;
+          const y = gy * s;
+          ictx.fillStyle = color;
+          ictx.beginPath();
+          ictx.roundRect(x + 2, y + 2, s - 4, s - 4, 6);
+          ictx.fill();
+          ictx.fillStyle = "rgba(255,255,255,0.22)";
+          ictx.fillRect(x + 5, y + 5, s - 10, 4);
+        };
+
+        // T-piece + base blocks icon
+        drawIconBlock(1.5, 1.2, "#a855f7");
+        drawIconBlock(2.5, 1.2, "#a855f7");
+        drawIconBlock(3.5, 1.2, "#a855f7");
+        drawIconBlock(2.5, 2.2, "#a855f7");
+
+        drawIconBlock(1.5, 3.6, "#06b6d4");
+        drawIconBlock(2.5, 3.6, "#3b82f6");
+        drawIconBlock(3.5, 3.6, "#22c55e");
+
+        const iconDataUrl = iconCanvas.toDataURL("image/png");
+        const appleTouchIcon = document.getElementById("apple-touch-icon");
+        if (appleTouchIcon) {
+          appleTouchIcon.href = iconDataUrl;
+        }
+
+        const manifestObj = {
+          name: "Tetris",
+          short_name: "Tetris",
+          start_url: "./",
+          scope: "./",
+          display: "standalone",
+          orientation: "portrait",
+          background_color: "#0b0e14",
+          theme_color: "#0b0e14",
+          icons: [
+            {
+              src: iconDataUrl,
+              sizes: "180x180",
+              type: "image/png",
+              purpose: "any"
+            }
+          ]
+        };
+
+        const manifestBlob = new Blob([JSON.stringify(manifestObj)], {
+          type: "application/manifest+json"
+        });
+        const manifestUrl = URL.createObjectURL(manifestBlob);
+        const manifestLink = document.getElementById("pwa-manifest");
+        if (manifestLink) {
+          manifestLink.href = manifestUrl;
+        }
+
+        if ("serviceWorker" in navigator && window.location.protocol === "https:") {
+          const swCode = `
+            const CACHE_NAME = "tetris-gh-pages-v1";
+            self.addEventListener("install", (event) => {
+              self.skipWaiting();
+              event.waitUntil(
+                caches.open(CACHE_NAME).then((cache) => cache.addAll(["./"]).catch(() => {}))
+              );
+            });
+            self.addEventListener("activate", (event) => {
+              event.waitUntil(self.clients.claim());
+            });
+            self.addEventListener("fetch", (event) => {
+              if (event.request.method !== "GET") return;
+              event.respondWith(
+                caches.match(event.request).then((cached) => {
+                  return cached || fetch(event.request).then((res) => {
+                    const copy = res.clone();
+                    caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy)).catch(() => {});
+                    return res;
+                  }).catch(() => cached);
+                })
+              );
+            });
+          `;
+          const swBlob = new Blob([swCode], { type: "application/javascript" });
+          const swUrl = URL.createObjectURL(swBlob);
+          navigator.serviceWorker.register(swUrl, { scope: "./" }).catch(() => {});
+        }
+      }
+
+      setupIOSAndPWA();
+
       // Board dimensions
       const COLS = 10;
       const ROWS = 20;
