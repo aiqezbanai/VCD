@@ -85,8 +85,8 @@
       display: block;
       background: #090c12;
       border-radius: 8px;
-      width: clamp(210px, 34vh, 330px);
-      height: calc(clamp(210px, 34vh, 330px) * 2);
+      width: clamp(200px, 31vh, 310px);
+      height: calc(clamp(200px, 31vh, 310px) * 2);
     }
 
     /* Overlay for Pause & Game Over */
@@ -301,13 +301,31 @@
       color: var(--text-primary);
     }
 
-    /* Touch Controls */
+    /* Custom Layout Touch / On-Screen Controls */
     .touch-controls {
       display: none;
       width: 100%;
       max-width: 420px;
+      flex-direction: column;
       gap: 8px;
-      grid-template-columns: repeat(5, 1fr);
+    }
+
+    .dpad-cluster {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .dpad-top-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .utility-row {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
     }
 
     .touch-btn {
@@ -315,9 +333,9 @@
       border: 1px solid var(--border-color);
       border-radius: 12px;
       color: var(--text-primary);
-      font-size: 1.05rem;
+      font-size: 1.1rem;
       font-weight: 700;
-      padding: 13px 6px;
+      padding: 11px 8px;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -330,17 +348,32 @@
     }
 
     .touch-btn span {
-      font-size: 0.62rem;
+      font-size: 0.64rem;
       font-weight: 600;
       color: var(--text-secondary);
       text-transform: uppercase;
-      letter-spacing: 0.04em;
+      letter-spacing: 0.05em;
     }
 
     .touch-btn:active {
       background: #222c40;
       border-color: var(--accent);
-      transform: scale(0.94);
+      transform: scale(0.95);
+    }
+
+    .touch-btn-wide {
+      width: 100%;
+    }
+
+    .touch-btn-util {
+      flex-direction: row;
+      gap: 6px;
+      padding: 10px 12px;
+      font-size: 0.92rem;
+    }
+
+    .touch-btn-util span {
+      font-size: 0.72rem;
     }
 
     /* Footer */
@@ -371,7 +404,7 @@
       .game-container {
         flex-direction: column;
         align-items: center;
-        gap: 10px;
+        gap: 8px;
       }
 
       .side-panel {
@@ -392,8 +425,8 @@
       }
 
       #next-canvas {
-        width: 56px;
-        height: 56px;
+        width: 54px;
+        height: 54px;
       }
 
       .stats-grid {
@@ -441,18 +474,18 @@
       }
 
       #board {
-        width: min(64vw, 48dvh, 270px);
-        height: calc(min(64vw, 48dvh, 270px) * 2);
+        width: min(58vw, 40dvh, 240px);
+        height: calc(min(58vw, 40dvh, 240px) * 2);
       }
 
       .touch-controls {
-        display: grid;
+        display: flex;
       }
     }
 
     @media (pointer: coarse) {
       .touch-controls {
-        display: grid;
+        display: flex;
       }
     }
   </style>
@@ -465,7 +498,7 @@
         <canvas id="board" width="300" height="600"></canvas>
         <div class="overlay" id="overlay">
           <h2 id="overlay-title">PAUSED</h2>
-          <p id="overlay-subtitle">Press P or Resume to continue</p>
+          <p id="overlay-subtitle">Սեղմեք P կամ Resume շարունակելու համար</p>
           <button class="btn" id="overlay-btn">Resume</button>
         </div>
       </div>
@@ -519,13 +552,20 @@
       </aside>
     </div>
 
-    <!-- Mobile Touch Controls -->
-    <div class="touch-controls" aria-label="Touch Controls">
-      <button class="touch-btn" id="touch-left" type="button">←<span>Left</span></button>
-      <button class="touch-btn" id="touch-right" type="button">→<span>Right</span></button>
-      <button class="touch-btn" id="touch-down" type="button">↓<span>Drop</span></button>
-      <button class="touch-btn" id="touch-rotate" type="button">↻<span>Rotate</span></button>
-      <button class="touch-btn" id="touch-pause" type="button">⏸<span>Pause</span></button>
+    <!-- Custom Layout Controls: 1. Left, 2. Rotate (center), 3. Right; under them: Fast Drop; 4. Pause & Restart side-by-side -->
+    <div class="touch-controls" aria-label="Game Controls">
+      <div class="dpad-cluster">
+        <div class="dpad-top-row">
+          <button class="touch-btn" id="touch-left" type="button">←<span>Left</span></button>
+          <button class="touch-btn" id="touch-rotate" type="button">↻<span>Rotate</span></button>
+          <button class="touch-btn" id="touch-right" type="button">→<span>Right</span></button>
+        </div>
+        <button class="touch-btn touch-btn-wide" id="touch-drop" type="button">⬇<span>Fast Drop</span></button>
+      </div>
+      <div class="utility-row">
+        <button class="touch-btn touch-btn-util" id="touch-pause" type="button">⏸<span>Pause</span></button>
+        <button class="touch-btn touch-btn-util" id="touch-restart" type="button">↺<span>Restart</span></button>
+      </div>
     </div>
   </main>
 
@@ -671,12 +711,18 @@
         };
       }
 
-      // Dynamic or constant drop interval
+      // Prevents speed from increasing during gameplay when constantSpeed is enabled
       function getDropInterval() {
         if (constantSpeed) {
           return BASE_DROP_INTERVAL;
         }
         return Math.max(90, BASE_DROP_INTERVAL - (level - 1) * 70);
+      }
+
+      function setConstantSpeed(enabled) {
+        constantSpeed = Boolean(enabled);
+        constantSpeedToggle.checked = constantSpeed;
+        dropCounter = 0;
       }
 
       // Collision check
@@ -834,7 +880,7 @@
         ctx.fillRect(px + 4, py + size - 7, size - 8, 3);
       }
 
-      // Render main board, grid, ghost trajectory, and active piece
+      // Render main board, grid, trajectory guide, ghost piece, and active piece
       function drawBoard() {
         boardCtx.clearRect(0, 0, boardCanvas.width, boardCanvas.height);
 
@@ -1067,12 +1113,12 @@
 
       // Toggle constant speed feature
       constantSpeedToggle.addEventListener("change", (e) => {
-        constantSpeed = e.target.checked;
+        setConstantSpeed(e.target.checked);
         e.target.blur();
       });
 
-      // Touch Controls
-      function bindTouchAction(id, action) {
+      // Button Actions
+      function bindButtonAction(id, action) {
         const el = document.getElementById(id);
         el.addEventListener("pointerdown", (e) => {
           e.preventDefault();
@@ -1081,11 +1127,12 @@
         });
       }
 
-      bindTouchAction("touch-left", () => moveHorizontal(-1));
-      bindTouchAction("touch-right", () => moveHorizontal(1));
-      bindTouchAction("touch-down", () => softDrop());
-      bindTouchAction("touch-rotate", () => rotatePiece());
-      bindTouchAction("touch-pause", () => togglePause());
+      bindButtonAction("touch-left", () => moveHorizontal(-1));
+      bindButtonAction("touch-rotate", () => rotatePiece());
+      bindButtonAction("touch-right", () => moveHorizontal(1));
+      bindButtonAction("touch-drop", () => hardDrop());
+      bindButtonAction("touch-pause", () => togglePause());
+      bindButtonAction("touch-restart", () => resetGame());
 
       // Start Game
       resetGame();
