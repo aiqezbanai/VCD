@@ -57,12 +57,14 @@
       grid-template-columns: 1.55fr 1fr;
       gap: clamp(8px, 1.8vw, 10px);
       flex-shrink: 0;
+      height: clamp(54px, 7.2dvh, 68px);
     }
 
     .recess-box {
+      height: 100%;
       background: #e9edf2;
       border-radius: clamp(12px, 3vw, 16px);
-      padding: clamp(5px, 0.8dvh, 7px) clamp(8px, 2vw, 10px);
+      padding: 4px clamp(8px, 2vw, 10px);
       box-shadow: inset 0 2px 6px rgba(15, 23, 42, 0.12), 0 1px 0 rgba(255, 255, 255, 0.85);
       display: flex;
       flex-direction: column;
@@ -74,15 +76,18 @@
       width: 100%;
       display: flex;
       justify-content: space-around;
-      font-size: clamp(0.56rem, 1.6vw, 0.62rem);
+      font-size: clamp(0.54rem, 1.5vw, 0.6rem);
       font-weight: 700;
       letter-spacing: 0.12em;
       color: #64748b;
-      margin-bottom: 2px;
+      line-height: 1.1;
+      margin-bottom: 1px;
     }
 
     .next-hold-row {
       width: 100%;
+      flex: 1;
+      min-height: 0;
       display: grid;
       grid-template-columns: 1fr 1fr;
       align-items: center;
@@ -93,33 +98,37 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      height: clamp(32px, 4.2dvh, 40px);
+      height: 100%;
+      min-height: 0;
     }
 
     .mini-slot canvas {
       width: 100%;
       height: 100%;
       max-width: 72px;
-      max-height: 40px;
+      max-height: 36px;
       object-fit: contain;
     }
 
     .score-label {
-      font-size: clamp(0.56rem, 1.6vw, 0.62rem);
+      font-size: clamp(0.54rem, 1.5vw, 0.6rem);
       font-weight: 700;
       letter-spacing: 0.12em;
       color: #64748b;
-      margin-bottom: 2px;
+      line-height: 1.1;
+      margin-bottom: 1px;
     }
 
     .score-val {
-      height: clamp(32px, 4.2dvh, 40px);
+      flex: 1;
+      min-height: 0;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: clamp(1.05rem, 3.6vw, 1.35rem);
+      font-size: clamp(1rem, 3.4vw, 1.25rem);
       font-weight: 800;
       color: #2b3440;
+      line-height: 1;
       font-variant-numeric: tabular-nums;
     }
 
@@ -188,13 +197,15 @@
       align-items: stretch;
       gap: 6px;
       flex-shrink: 0;
+      height: clamp(54px, 7.2dvh, 68px);
     }
 
     .speed-bar {
       flex: 1;
+      height: 100%;
       background: #e9edf2;
-      border-radius: clamp(10px, 2.5vw, 12px);
-      padding: 3px 7px;
+      border-radius: clamp(12px, 3vw, 16px);
+      padding: 4px 8px;
       box-shadow: inset 0 2px 6px rgba(15, 23, 42, 0.12), 0 1px 0 rgba(255, 255, 255, 0.85);
       display: flex;
       align-items: center;
@@ -216,9 +227,12 @@
       gap: 4px;
       flex: 1;
       max-width: 220px;
+      height: 100%;
+      align-items: center;
     }
 
     .speed-btn {
+      height: calc(100% - 8px);
       border: none;
       border-radius: 8px;
       padding: 3px 5px;
@@ -243,9 +257,10 @@
     }
 
     .btn-pause {
+      height: 100%;
       border: none;
-      border-radius: clamp(10px, 2.5vw, 12px);
-      padding: 3px 10px;
+      border-radius: clamp(12px, 3vw, 16px);
+      padding: 4px 10px;
       background: #f8fafc;
       color: #1e293b;
       font-size: clamp(0.74rem, 2.3vw, 0.82rem);
