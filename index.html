@@ -138,10 +138,11 @@
       padding: clamp(6px, 1.2vw, 8px);
       box-shadow: inset 0 3px 8px rgba(15, 23, 42, 0.14), 0 1px 0 rgba(255, 255, 255, 0.85);
       display: flex;
-      align-items: stretch;
-      justify-content: stretch;
+      align-items: center;
+      justify-content: center;
       flex: 1 1 auto;
       min-height: 0;
+      overflow: hidden;
     }
 
     #board {
@@ -484,15 +485,16 @@
       let lastTime = 0;
       let dropCounter = 0;
 
-      function syncCanvasSize() {
-        const dpr = Math.min(window.devicePixelRatio || 1, 2);
-        const w = Math.max(100, boardCanvas.clientWidth);
-        const h = Math.max(100, boardCanvas.clientHeight);
-        if (boardCanvas.width !== Math.round(w * dpr) || boardCanvas.height !== Math.round(h * dpr)) {
-          boardCanvas.width = Math.round(w * dpr);
-          boardCanvas.height = Math.round(h * dpr);
+      function syncBoardSize() {
+        const rect = boardCanvas.getBoundingClientRect();
+        const dpr = window.devicePixelRatio || 1;
+        const w = Math.max(1, Math.round(rect.width * dpr));
+        const h = Math.max(1, Math.round(rect.height * dpr));
+        if (boardCanvas.width !== w || boardCanvas.height !== h) {
+          boardCanvas.width = w;
+          boardCanvas.height = h;
+          drawBoard();
         }
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       }
 
       function getDropInterval() {
@@ -645,48 +647,39 @@
         advanceNextPiece();
       }
 
-      function drawCell(context, x, y, size, color, dashed = false, gap = 2, radius = 6) {
-        const px = x * size;
-        const py = y * size;
+      function drawCell(context, px, py, cellW, cellH, color, dashed = false) {
+        const padX = Math.max(1.5, cellW * 0.06);
+        const padY = Math.max(1.5, cellH * 0.06);
+        const radius = Math.max(3, Math.min(cellW, cellH) * 0.18);
         if (dashed) {
           context.save();
           context.strokeStyle = color;
           context.globalAlpha = 0.5;
-          context.lineWidth = 2;
+          context.lineWidth = Math.max(1.5, Math.min(cellW, cellH) * 0.06);
           context.setLineDash([4, 3]);
-          context.strokeRect(px + gap + 1, py + gap + 1, size - (gap + 1) * 2, size - (gap + 1) * 2);
+          context.strokeRect(px + padX, py + padY, cellW - padX * 2, cellH - padY * 2);
           context.restore();
           return;
         }
         context.fillStyle = color;
         context.beginPath();
-        context.roundRect(px + gap, py + gap, size - gap * 2, size - gap * 2, radius);
+        context.roundRect(px + padX, py + padY, cellW - padX * 2, cellH - padY * 2, radius);
         context.fill();
       }
 
       function drawBoard() {
-        syncCanvasSize();
-        const cw = boardCanvas.clientWidth;
-        const ch = boardCanvas.clientHeight;
-        ctx.clearRect(0, 0, cw, ch);
-
-        const cellSize = Math.min(cw / COLS, ch / ROWS);
-        const gridW = cellSize * COLS;
-        const gridH = cellSize * ROWS;
-        const offsetX = (cw - gridW) / 2;
-        const offsetY = (ch - gridH) / 2;
-        const gap = Math.max(1.5, cellSize * 0.065);
-        const radius = Math.max(3, cellSize * 0.18);
-
-        ctx.save();
-        ctx.translate(offsetX, offsetY);
+        const w = boardCanvas.width;
+        const h = boardCanvas.height;
+        const cellW = w / COLS;
+        const cellH = h / ROWS;
+        ctx.clearRect(0, 0, w, h);
 
         ctx.fillStyle = "rgba(100, 116, 139, 0.16)";
-        const dotR = Math.max(1.2, cellSize * 0.045);
+        const dotR = Math.max(1.2, Math.min(cellW, cellH) * 0.045);
         for (let r = 0; r < ROWS; r++) {
           for (let c = 0; c < COLS; c++) {
             ctx.beginPath();
-            ctx.arc(c * cellSize + cellSize / 2, r * cellSize + cellSize / 2, dotR, 0, Math.PI * 2);
+            ctx.arc(c * cellW + cellW / 2, r * cellH + cellH / 2, dotR, 0, Math.PI * 2);
             ctx.fill();
           }
         }
@@ -694,32 +687,30 @@
         for (let r = 0; r < ROWS; r++) {
           for (let c = 0; c < COLS; c++) {
             if (board[r][c]) {
-              drawCell(ctx, c, r, cellSize, board[r][c], false, gap, radius);
+              drawCell(ctx, c * cellW, r * cellH, cellW, cellH, board[r][c]);
             }
           }
         }
 
-        if (current && !gameOver) {
-          const targetY = getDropY();
+        if (!current || gameOver) return;
 
-          for (let r = 0; r < current.matrix.length; r++) {
-            for (let c = 0; c < current.matrix[r].length; c++) {
-              if (current.matrix[r][c] && targetY + r >= 0) {
-                drawCell(ctx, current.x + c, targetY + r, cellSize, current.color, true, gap, radius);
-              }
-            }
-          }
+        const targetY = getDropY();
 
-          for (let r = 0; r < current.matrix.length; r++) {
-            for (let c = 0; c < current.matrix[r].length; c++) {
-              if (current.matrix[r][c] && current.y + r >= 0) {
-                drawCell(ctx, current.x + c, current.y + r, cellSize, current.color, false, gap, radius);
-              }
+        for (let r = 0; r < current.matrix.length; r++) {
+          for (let c = 0; c < current.matrix[r].length; c++) {
+            if (current.matrix[r][c] && targetY + r >= 0) {
+              drawCell(ctx, (current.x + c) * cellW, (targetY + r) * cellH, cellW, cellH, current.color, true);
             }
           }
         }
 
-        ctx.restore();
+        for (let r = 0; r < current.matrix.length; r++) {
+          for (let c = 0; c < current.matrix[r].length; c++) {
+            if (current.matrix[r][c] && current.y + r >= 0) {
+              drawCell(ctx, (current.x + c) * cellW, (current.y + r) * cellH, cellW, cellH, current.color);
+            }
+          }
+        }
       }
 
       function drawMini(context, canvas, key) {
@@ -748,7 +739,7 @@
         for (let r = 0; r < m.length; r++) {
           for (let c = 0; c < m[r].length; c++) {
             if (m[r][c]) {
-              drawCell(context, c, r, s, def.color, false, 1.5, 3);
+              drawCell(context, c * s, r * s, s, s, def.color);
             }
           }
         }
@@ -787,6 +778,7 @@
         nextPiece = spawnPiece();
         drawMini(nextCtx, nextCanvas, nextPiece.key);
         drawMini(holdCtx, holdCanvas, null);
+        syncBoardSize();
         drawBoard();
       }
 
@@ -859,10 +851,11 @@
         drawBoard();
       });
 
-      window.addEventListener("resize", drawBoard);
-      if (window.ResizeObserver) {
-        new ResizeObserver(drawBoard).observe(boardFrame);
-      }
+      const resizeObs = new ResizeObserver(() => {
+        syncBoardSize();
+      });
+      resizeObs.observe(boardFrame);
+      window.addEventListener("resize", syncBoardSize);
 
       reset();
       requestAnimationFrame(loop);
