@@ -34,21 +34,22 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: max(8px, env(safe-area-inset-top)) clamp(8px, 2vw, 18px) max(8px, env(safe-area-inset-bottom)) clamp(8px, 2vw, 18px);
+      padding: max(6px, env(safe-area-inset-top)) clamp(8px, 2vw, 18px) max(6px, env(safe-area-inset-bottom)) clamp(8px, 2vw, 18px);
     }
 
     .shell {
       width: 100%;
       max-width: min(470px, 100vw - 16px);
-      max-height: 100dvh;
+      height: 100%;
+      max-height: calc(100dvh - 12px);
       background: #f4f6f9;
       border-radius: clamp(18px, 4vw, 26px);
-      padding: clamp(10px, 1.8dvh, 14px);
+      padding: clamp(8px, 1.3dvh, 12px);
       box-shadow: 0 18px 40px rgba(24, 32, 46, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.9);
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      gap: clamp(8px, 1.2dvh, 12px);
+      gap: clamp(6px, 0.9dvh, 9px);
     }
 
     .top-bar {
@@ -61,7 +62,7 @@
     .recess-box {
       background: #e9edf2;
       border-radius: clamp(12px, 3vw, 16px);
-      padding: clamp(6px, 1dvh, 8px) clamp(8px, 2vw, 10px);
+      padding: clamp(5px, 0.8dvh, 7px) clamp(8px, 2vw, 10px);
       box-shadow: inset 0 2px 6px rgba(15, 23, 42, 0.12), 0 1px 0 rgba(255, 255, 255, 0.85);
       display: flex;
       flex-direction: column;
@@ -73,11 +74,11 @@
       width: 100%;
       display: flex;
       justify-content: space-around;
-      font-size: clamp(0.58rem, 1.7vw, 0.65rem);
+      font-size: clamp(0.56rem, 1.6vw, 0.62rem);
       font-weight: 700;
       letter-spacing: 0.12em;
       color: #64748b;
-      margin-bottom: 3px;
+      margin-bottom: 2px;
     }
 
     .next-hold-row {
@@ -92,31 +93,31 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      height: clamp(36px, 5dvh, 46px);
+      height: clamp(32px, 4.2dvh, 40px);
     }
 
     .mini-slot canvas {
       width: 100%;
       height: 100%;
-      max-width: 76px;
-      max-height: 46px;
+      max-width: 72px;
+      max-height: 40px;
       object-fit: contain;
     }
 
     .score-label {
-      font-size: clamp(0.58rem, 1.7vw, 0.65rem);
+      font-size: clamp(0.56rem, 1.6vw, 0.62rem);
       font-weight: 700;
       letter-spacing: 0.12em;
       color: #64748b;
-      margin-bottom: 3px;
+      margin-bottom: 2px;
     }
 
     .score-val {
-      height: clamp(36px, 5dvh, 46px);
+      height: clamp(32px, 4.2dvh, 40px);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: clamp(1.15rem, 4vw, 1.45rem);
+      font-size: clamp(1.05rem, 3.6vw, 1.35rem);
       font-weight: 800;
       color: #2b3440;
       font-variant-numeric: tabular-nums;
@@ -184,42 +185,42 @@
 
     .speed-bar {
       background: #e9edf2;
-      border-radius: clamp(10px, 2.5vw, 14px);
-      padding: 4px 8px;
+      border-radius: clamp(10px, 2.5vw, 12px);
+      padding: 3px 7px;
       box-shadow: inset 0 2px 6px rgba(15, 23, 42, 0.12), 0 1px 0 rgba(255, 255, 255, 0.85);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 8px;
+      gap: 6px;
       flex-shrink: 0;
     }
 
     .speed-label {
-      font-size: clamp(0.62rem, 1.8vw, 0.7rem);
+      font-size: clamp(0.58rem, 1.6vw, 0.64rem);
       font-weight: 700;
       letter-spacing: 0.08em;
       color: #64748b;
-      padding-left: 4px;
+      padding-left: 3px;
     }
 
     .speed-options {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 5px;
+      gap: 4px;
       flex: 1;
-      max-width: 280px;
+      max-width: 240px;
     }
 
     .speed-btn {
       border: none;
-      border-radius: 9px;
-      padding: 5px 6px;
+      border-radius: 8px;
+      padding: 3px 5px;
       background: #f8fafc;
       color: #334155;
-      font-size: clamp(0.72rem, 2.4vw, 0.82rem);
+      font-size: clamp(0.68rem, 2.1vw, 0.76rem);
       font-weight: 700;
       cursor: pointer;
-      box-shadow: 0 2px 5px rgba(15, 23, 42, 0.1), inset 0 1px 0 #ffffff;
+      box-shadow: 0 2px 4px rgba(15, 23, 42, 0.1), inset 0 1px 0 #ffffff;
       transition: transform 0.08s ease, background 0.12s ease, color 0.12s ease;
       touch-action: manipulation;
     }
@@ -237,16 +238,16 @@
     .controls-zone {
       display: flex;
       flex-direction: column;
-      gap: clamp(6px, 1dvh, 8px);
-      padding-top: 2px;
+      gap: clamp(4px, 0.7dvh, 6px);
+      padding-top: 1px;
       flex-shrink: 0;
     }
 
     .controls-main {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 1.45fr 0.72fr;
       align-items: stretch;
-      gap: clamp(8px, 2vw, 12px);
+      gap: clamp(6px, 1.4vw, 9px);
     }
 
     .dir-row {
@@ -259,7 +260,7 @@
     .right-cluster {
       display: grid;
       grid-template-rows: repeat(2, 1fr);
-      gap: clamp(6px, 1.2dvh, 8px);
+      gap: clamp(4px, 0.7dvh, 6px);
     }
 
     .pad-btn,
@@ -268,20 +269,31 @@
     .btn-pause {
       width: 100%;
       height: 100%;
-      min-height: clamp(42px, 6dvh, 54px);
+      min-height: clamp(36px, 4.8dvh, 44px);
       border: none;
-      border-radius: clamp(10px, 2.5vw, 14px);
+      border-radius: clamp(9px, 2.2vw, 12px);
       background: #f8fafc;
       color: #1e293b;
-      font-size: clamp(1.08rem, 3.6vw, 1.25rem);
+      font-size: clamp(0.96rem, 3.2vw, 1.12rem);
       font-weight: 700;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      box-shadow: 0 5px 12px rgba(15, 23, 42, 0.12), inset 0 1px 0 #ffffff;
+      box-shadow: 0 4px 10px rgba(15, 23, 42, 0.11), inset 0 1px 0 #ffffff;
       transition: transform 0.08s ease, background 0.12s ease;
       touch-action: manipulation;
+    }
+
+    .pad-btn {
+      font-size: clamp(1.12rem, 3.8vw, 1.32rem);
+      min-height: clamp(40px, 5.4dvh, 50px);
+    }
+
+    .btn-rotate,
+    .btn-fast-drop {
+      font-size: clamp(0.88rem, 2.8vw, 1rem);
+      min-height: clamp(32px, 4dvh, 38px);
     }
 
     .pad-btn:active,
@@ -293,15 +305,15 @@
     }
 
     .btn-pause {
-      min-height: clamp(38px, 5dvh, 44px);
-      font-size: clamp(0.84rem, 2.9vw, 0.94rem);
-      gap: 6px;
+      min-height: clamp(30px, 3.8dvh, 36px);
+      font-size: clamp(0.76rem, 2.5vw, 0.84rem);
+      gap: 5px;
     }
 
     @media (min-width: 769px) and (orientation: landscape) {
       .shell {
         max-width: min(92vw, 820px);
-        max-height: calc(100dvh - 16px);
+        max-height: calc(100dvh - 12px);
         display: grid;
         grid-template-columns: 1fr 1.15fr;
         grid-template-rows: auto auto 1fr;
@@ -373,7 +385,7 @@
       <div class="controls-main">
         <div class="dir-row">
           <button class="pad-btn" id="btn-left" type="button" aria-label="Ձախ">⬅️</button>
-          <button class="pad-btn" id="btn-down" type="button" aria-label="Ներքև">⬅️</button>
+          <button class="pad-btn" id="btn-down" type="button" aria-label="Ներքև">⬇️</button>
           <button class="pad-btn" id="btn-right" type="button" aria-label="Աջ">➡️</button>
         </div>
         <div class="right-cluster">
@@ -538,31 +550,6 @@
         score += dist * 2;
         scoreEl.textContent = score;
         lockPiece();
-        dropCounter = 0;
-      }
-
-      function holdCurrent() {
-        if (paused || gameOver || !canHold) return;
-        canHold = false;
-        const prevKey = current.key;
-        if (holdPiece) {
-          const def = SHAPES[holdPiece];
-          const matrix = def.matrix.map(r => [...r]);
-          current = {
-            key: holdPiece,
-            color: def.color,
-            matrix,
-            x: Math.floor((COLS - matrix[0].length) / 2),
-            y: holdPiece === "I" ? -1 : 0
-          };
-          holdPiece = prevKey;
-        } else {
-          holdPiece = prevKey;
-          current = nextPiece;
-          nextPiece = spawnPiece();
-          drawMini(nextCtx, nextCanvas, nextPiece ? nextPiece.key : null);
-        }
-        drawMini(holdCtx, holdCanvas, holdPiece);
         dropCounter = 0;
       }
 
@@ -807,7 +794,6 @@
         if (e.code === "ArrowLeft") moveX(-1);
         else if (e.code === "ArrowRight") moveX(1);
         else if (e.code === "ArrowDown") stepDown();
-        else if (e.code === "ArrowUp") holdCurrent();
         else if (e.code === "KeyR") rotatePiece();
         else if (e.code === "Space") fastDrop();
         drawBoard();
