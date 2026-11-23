@@ -7,8 +7,11 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <meta name="apple-mobile-web-app-title" content="Tetris" />
-  <title>Tetris</title>
+  <meta name="apple-mobile-web-app-title" content="Tetris One" />
+  <title>Tetris One</title>
+  <link rel="icon" id="dynamic-favicon" type="image/svg+xml" />
+  <link rel="apple-touch-icon" id="dynamic-apple-icon" />
+  <link rel="manifest" id="dynamic-manifest" />
   <style>
     * {
       box-sizing: border-box;
@@ -432,7 +435,7 @@
       <canvas id="board"></canvas>
       <div class="overlay" id="overlay">
         <h2 id="overlay-title">Դադարեցված է!!!</h2>
-        <button class="overlay-btn" id="overlay-btn" type="button">⏯️ Շարունակել</button>
+        <button class="overlay-btn" id="overlay-btn" type="button">⏯️ Սկսել</button>
       </div>
     </div>
 
@@ -456,14 +459,14 @@
       let COLS = 12;
       let ROWS = 22;
       const BASE_INTERVAL = 700;
-      const SCORE_CAP = 30000;
-      const SCORE_STORAGE_KEY = "tetris_persistent_score_v1";
       const SPEED_INTERVALS = {
         "-2": 1650,
         "-1": 1200,
         "1": BASE_INTERVAL,
         "2": 320
       };
+      const SCORE_CAP = 30000;
+      const SCORE_STORAGE_KEY = "tetris_persistent_score_v1";
 
       const boardFrame = document.getElementById("board-frame");
       const boardCanvas = document.getElementById("board");
@@ -479,13 +482,13 @@
       const speedBtns = Array.from(document.querySelectorAll(".speed-btn"));
 
       const SHAPES = {
-        I: { color: "#00f0f0", matrix: [[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]] },
-        O: { color: "#f0f000", matrix: [[1,1],[1,1]] },
-        T: { color: "#a000f0", matrix: [[0,1,0],[1,1,1],[0,0,0]] },
-        S: { color: "#00f000", matrix: [[0,1,1],[1,1,0],[0,0,0]] },
-        Z: { color: "#f00000", matrix: [[1,1,0],[0,1,1],[0,0,0]] },
-        J: { color: "#0000f0", matrix: [[1,0,0],[1,1,1],[0,0,0]] },
-        L: { color: "#f0a000", matrix: [[0,0,1],[1,1,1],[0,0,0]] }
+        I: { color: "#2bb0ed", matrix: [[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]] },
+        O: { color: "#facc15", matrix: [[1,1],[1,1]] },
+        T: { color: "#2563eb", matrix: [[0,1,0],[1,1,1],[0,0,0]] },
+        S: { color: "#22c55e", matrix: [[0,1,1],[1,1,0],[0,0,0]] },
+        Z: { color: "#ef4444", matrix: [[1,1,0],[0,1,1],[0,0,0]] },
+        J: { color: "#3b82f6", matrix: [[1,0,0],[1,1,1],[0,0,0]] },
+        L: { color: "#f97316", matrix: [[0,0,1],[1,1,1],[0,0,0]] }
       };
       const KEYS = Object.keys(SHAPES);
 
@@ -505,50 +508,131 @@
       let cellH = 24;
       let blockSize = 24;
 
+      function createAppIconDataUrl(size) {
+        const iconCanvas = document.createElement("canvas");
+        iconCanvas.width = size;
+        iconCanvas.height = size;
+        const ic = iconCanvas.getContext("2d");
+
+        const pad = Math.round(size * 0.08);
+        const r = Math.round(size * 0.22);
+
+        ic.fillStyle = "#f4f6f9";
+        ic.beginPath();
+        drawRoundRect(ic, 0, 0, size, size, r);
+        ic.fill();
+
+        ic.strokeStyle = "#9acbff";
+        ic.lineWidth = 1;
+        ic.beginPath();
+        drawRoundRect(ic, pad, pad, size - pad * 2, size - pad * 2, Math.max(4, r - pad));
+        ic.stroke();
+
+        const unit = Math.floor((size - pad * 4) / 3);
+        const ox = Math.floor((size - unit * 3) / 2);
+        const oy = Math.floor((size - unit * 2) / 2);
+        const gap = Math.max(1, Math.round(unit * 0.08));
+        const cr = Math.max(2, Math.round(unit * 0.18));
+
+        const cells = [
+          { c: 0, r: 0, color: "#2563eb" },
+          { c: 1, r: 0, color: "#2563eb" },
+          { c: 2, r: 0, color: "#2563eb" },
+          { c: 1, r: 1, color: "#2563eb" }
+        ];
+
+        for (const cell of cells) {
+          const x = ox + cell.c * unit + gap;
+          const y = oy + cell.r * unit + gap;
+          const w = unit - gap * 2;
+          const h = unit - gap * 2;
+          ic.fillStyle = cell.color;
+          ic.beginPath();
+          drawRoundRect(ic, x, y, w, h, cr);
+          ic.fill();
+        }
+
+        return iconCanvas.toDataURL("image/png");
+      }
+
+      function setupTetrisOneAppIdentity() {
+        const icon192 = createAppIconDataUrl(192);
+        const icon512 = createAppIconDataUrl(512);
+
+        const faviconEl = document.getElementById("dynamic-favicon");
+        const appleIconEl = document.getElementById("dynamic-apple-icon");
+        const manifestEl = document.getElementById("dynamic-manifest");
+
+        if (faviconEl) {
+          faviconEl.setAttribute("type", "image/png");
+          faviconEl.setAttribute("href", icon192);
+        }
+        if (appleIconEl) {
+          appleIconEl.setAttribute("href", icon192);
+        }
+
+        const manifestData = {
+          name: "Tetris One",
+          short_name: "Tetris One",
+          start_url: ".",
+          scope: ".",
+          display: "standalone",
+          background_color: "#e4e8ee",
+          theme_color: "#eef1f5",
+          icons: [
+            {
+              src: icon192,
+              sizes: "192x192",
+              type: "image/png",
+              purpose: "any maskable"
+            },
+            {
+              src: icon512,
+              sizes: "512x512",
+              type: "image/png",
+              purpose: "any maskable"
+            }
+          ]
+        };
+
+        if (manifestEl) {
+          try {
+            const blob = new Blob([JSON.stringify(manifestData)], { type: "application/manifest+json" });
+            manifestEl.setAttribute("href", URL.createObjectURL(blob));
+          } catch (_) {}
+        }
+      }
+
       function loadStoredScore() {
         try {
-          const rawLocal = window.localStorage ? window.localStorage.getItem(SCORE_STORAGE_KEY) : null;
-          if (rawLocal !== null) {
-            const parsed = parseInt(rawLocal, 10);
-            if (Number.isFinite(parsed) && parsed >= 0 && parsed < SCORE_CAP) {
-              return parsed;
-            }
+          const raw = window.localStorage.getItem(SCORE_STORAGE_KEY);
+          const parsed = parseInt(raw || "0", 10);
+          if (!Number.isFinite(parsed) || parsed < 0 || parsed >= SCORE_CAP) {
+            window.localStorage.setItem(SCORE_STORAGE_KEY, "0");
+            return 0;
           }
-        } catch (_) {}
-        try {
-          const saved = parseInt(window.name || "0", 10);
-          if (Number.isFinite(saved) && saved >= 0 && saved < SCORE_CAP) {
-            return saved;
-          }
-        } catch (_) {}
-        return 0;
+          return parsed;
+        } catch (_) {
+          return 0;
+        }
       }
 
       function saveStoredScore(val) {
-        const safeVal = Number.isFinite(val) && val >= 0 ? val : 0;
+        const normalized = val >= SCORE_CAP ? 0 : Math.max(0, val);
         try {
-          if (window.localStorage) {
-            window.localStorage.setItem(SCORE_STORAGE_KEY, String(safeVal));
-          }
+          window.localStorage.setItem(SCORE_STORAGE_KEY, String(normalized));
         } catch (_) {}
-        try {
-          window.name = String(safeVal);
-        } catch (_) {}
+        return normalized;
       }
 
-      function applyScore(nextVal) {
-        if (nextVal >= SCORE_CAP) {
+      function setScoreValue(newScore) {
+        if (newScore >= SCORE_CAP) {
           score = 0;
-        } else if (nextVal > score) {
-          score = nextVal;
+          saveStoredScore(0);
+        } else if (newScore > score) {
+          score = newScore;
+          saveStoredScore(score);
         }
-        saveStoredScore(score);
-        scoreEl.textContent = String(score);
-      }
-
-      function restoreUndoScore(prevScore) {
-        score = prevScore >= SCORE_CAP ? 0 : Math.max(0, prevScore);
-        saveStoredScore(score);
         scoreEl.textContent = String(score);
       }
 
@@ -572,7 +656,9 @@
         if (paused || gameOver || undoHistory.length === 0) return;
         const prev = undoHistory.pop();
         board = prev.board.map(row => [...row]);
-        restoreUndoScore(prev.score);
+        score = prev.score;
+        saveStoredScore(score);
+        scoreEl.textContent = String(score);
         if (current) {
           bag.push(current.key);
         }
@@ -734,7 +820,7 @@
           }
         }
         if (cleared > 0) {
-          applyScore(score + cleared * 100);
+          setScoreValue(score + cleared * 100);
         }
       }
 
@@ -745,7 +831,7 @@
         if (!isValid(current.matrix, current.x, current.y)) {
           gameOver = true;
           overlayTitle.textContent = "Խաղն ավարտվեց!!!";
-          overlayBtn.textContent = "Սկսել";
+          overlayBtn.textContent = "⏯️ Սկսել";
           overlay.classList.add("active");
           updateUndoButton();
         }
@@ -759,7 +845,7 @@
             if (by < 0) {
               gameOver = true;
               overlayTitle.textContent = "Խաղն ավարտվեց!!!";
-              overlayBtn.textContent = "Սկսել";
+              overlayBtn.textContent = "⏯️ Սկսել";
               overlay.classList.add("active");
               updateUndoButton();
               return;
@@ -795,47 +881,28 @@
         context.closePath();
       }
 
-      function drawCell(context, col, row, size, color) {
+      function drawCell(context, col, row, size, color, ghost = false) {
         const px = col * cellW + (cellW - size) / 2;
         const py = row * cellH + (cellH - size) / 2;
         const inset = Math.max(1.5, size * 0.07);
         const radius = Math.max(3, size * 0.2);
 
+        if (ghost) {
+          context.save();
+          context.strokeStyle = "#9acbff";
+          context.lineWidth = 1;
+          context.setLineDash([]);
+          context.beginPath();
+          drawRoundRect(context, px + inset + 0.5, py + inset + 0.5, size - (inset + 0.5) * 2, size - (inset + 0.5) * 2, radius);
+          context.stroke();
+          context.restore();
+          return;
+        }
+
         context.fillStyle = color;
         context.beginPath();
         drawRoundRect(context, px + inset, py + inset, size - inset * 2, size - inset * 2, radius);
         context.fill();
-      }
-
-      function drawTrail(context, matrix, ox, oy) {
-        if (!matrix || oy < 0) return;
-        const dropY = getDropY();
-        if (dropY <= oy) return;
-        const startY = (oy + matrix.length) * cellH;
-        const endY = dropY * cellH;
-        if (endY <= startY) return;
-
-        let minC = matrix[0].length;
-        let maxC = -1;
-        for (let r = 0; r < matrix.length; r++) {
-          for (let c = 0; c < matrix[r].length; c++) {
-            if (matrix[r][c]) {
-              minC = Math.min(minC, c);
-              maxC = Math.max(maxC, c);
-            }
-          }
-        }
-        if (maxC < minC) return;
-
-        const left = (ox + minC) * cellW + 1;
-        const width = (maxC - minC + 1) * cellW - 2;
-        const height = endY - startY;
-
-        context.save();
-        context.strokeStyle = "#9acbff";
-        context.lineWidth = 1;
-        context.strokeRect(left + 0.5, startY + 0.5, Math.max(0, width - 1), Math.max(0, height - 1));
-        context.restore();
       }
 
       function drawBoard() {
@@ -863,7 +930,15 @@
 
         if (!current || gameOver) return;
 
-        drawTrail(ctx, current.matrix, current.x, current.y);
+        const targetY = getDropY();
+
+        for (let r = 0; r < current.matrix.length; r++) {
+          for (let c = 0; c < current.matrix[r].length; c++) {
+            if (current.matrix[r][c] && targetY + r >= 0) {
+              drawCell(ctx, current.x + c, targetY + r, blockSize, current.color, true);
+            }
+          }
+        }
 
         for (let r = 0; r < current.matrix.length; r++) {
           for (let c = 0; c < current.matrix[r].length; c++) {
@@ -914,10 +989,10 @@
         if (gameOver) return;
         paused = !paused;
         if (paused) {
-          overlayTitle.textContent = "Դադարեցված է!!!";
-          overlayBtn.textContent = "Շարունակել";
+          overlayTitle.textContent = "Խաղը դադարեցված է!";
+          overlayBtn.textContent = "⏯️ Սկսել";
           overlay.classList.add("active");
-          btnPause.textContent = "▶️ Շարունակել";
+          btnPause.textContent = "⏯️ Սկսել";
         } else {
           overlay.classList.remove("active");
           btnPause.textContent = "⏸️ Դադար";
@@ -1018,6 +1093,7 @@
       });
 
       window.addEventListener("resize", () => resizeBoardCanvas(false));
+      setupTetrisOneAppIdentity();
       reset();
       requestAnimationFrame(loop);
     })();
