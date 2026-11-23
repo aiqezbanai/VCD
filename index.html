@@ -211,7 +211,7 @@
     }
 
     .speed-label {
-      font-size: clamp(0.54rem, 1.5vw, 0.62rem);
+      font-size: clamp(0.56rem, 1.5vw, 0.62rem);
       font-weight: 700;
       letter-spacing: 0.06em;
       color: #64748b;
@@ -225,7 +225,7 @@
       gap: 3px;
       flex: 1;
       height: 100%;
-      max-width: 190px;
+      max-width: 200px;
     }
 
     .speed-btn {
@@ -235,7 +235,7 @@
       padding: 2px 4px;
       background: #f8fafc;
       color: #334155;
-      font-size: clamp(0.64rem, 2vw, 0.74rem);
+      font-size: clamp(0.66rem, 2vw, 0.74rem);
       font-weight: 700;
       display: flex;
       align-items: center;
@@ -256,38 +256,13 @@
       transform: scale(0.95);
     }
 
-    .btn-swap {
-      height: 100%;
-      border: none;
-      border-radius: clamp(12px, 3vw, 16px);
-      padding: 4px 10px;
-      background: #f8fafc;
-      color: #1e293b;
-      font-size: clamp(0.95rem, 2.8vw, 1.1rem);
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      box-shadow: 0 3px 8px rgba(15, 23, 42, 0.11), inset 0 1px 0 #ffffff;
-      transition: transform 0.08s ease, background 0.12s ease;
-      touch-action: manipulation;
-      flex-shrink: 0;
-    }
-
-    .btn-swap:active {
-      transform: scale(0.95);
-      background: #e2e8f0;
-    }
-
+    .btn-undo,
     .btn-pause {
       height: 100%;
       border: none;
       border-radius: clamp(12px, 3vw, 16px);
-      padding: 4px 10px;
       background: #f8fafc;
       color: #1e293b;
-      font-size: clamp(0.72rem, 2.2vw, 0.8rem);
       font-weight: 700;
       display: flex;
       align-items: center;
@@ -296,11 +271,28 @@
       white-space: nowrap;
       cursor: pointer;
       box-shadow: 0 3px 8px rgba(15, 23, 42, 0.11), inset 0 1px 0 #ffffff;
-      transition: transform 0.08s ease, background 0.12s ease;
+      transition: transform 0.08s ease, background 0.12s ease, opacity 0.12s ease;
       touch-action: manipulation;
+    }
+
+    .btn-undo {
+      padding: 4px 10px;
+      font-size: clamp(0.88rem, 2.6vw, 1rem);
       flex-shrink: 0;
     }
 
+    .btn-undo:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .btn-pause {
+      padding: 4px 9px;
+      font-size: clamp(0.72rem, 2.2vw, 0.8rem);
+      flex-shrink: 0;
+    }
+
+    .btn-undo:not(:disabled):active,
     .btn-pause:active {
       transform: scale(0.95);
       background: #e2e8f0;
@@ -432,7 +424,7 @@
           <button class="speed-btn" id="speed-fast" type="button" data-speed="2">2x</button>
         </div>
       </div>
-      <button class="btn-swap" id="btn-swap" type="button" aria-label="Փոխել ֆիգուրը">↩️</button>
+      <button class="btn-undo" id="btn-undo" type="button" aria-label="Հետարկել" disabled>↩️</button>
       <button class="btn-pause" id="btn-pause" type="button" aria-label="Pause">⏸️ Դադար</button>
     </div>
 
@@ -480,6 +472,7 @@
       const overlay = document.getElementById("overlay");
       const overlayTitle = document.getElementById("overlay-title");
       const overlayBtn = document.getElementById("overlay-btn");
+      const btnUndo = document.getElementById("btn-undo");
       const btnPause = document.getElementById("btn-pause");
       const speedBtns = Array.from(document.querySelectorAll(".speed-btn"));
 
@@ -504,10 +497,44 @@
       let gameOver = false;
       let lastTime = 0;
       let dropCounter = 0;
+      let undoHistory = [];
 
       let cellW = 24;
       let cellH = 24;
       let blockSize = 24;
+
+      function updateUndoButton() {
+        btnUndo.disabled = undoHistory.length === 0 || paused || gameOver;
+      }
+
+      function saveUndoState() {
+        undoHistory.push({
+          board: board.map(row => [...row]),
+          score: score,
+          nextKey: nextPiece ? nextPiece.key : null
+        });
+        if (undoHistory.length > 10) {
+          undoHistory.shift();
+        }
+        updateUndoButton();
+      }
+
+      function undoLastPlacement() {
+        if (paused || gameOver || undoHistory.length === 0) return;
+        const prev = undoHistory.pop();
+        board = prev.board.map(row => [...row]);
+        score = prev.score;
+        scoreEl.textContent = score;
+        if (current) {
+          bag.push(current.key);
+        }
+        nextPiece = spawnPiece();
+        current = spawnPiece();
+        drawMini(nextCtx, nextCanvas, nextPiece ? nextPiece.key : null);
+        dropCounter = 0;
+        updateUndoButton();
+        drawBoard();
+      }
 
       function getInnerMetrics() {
         const style = getComputedStyle(boardFrame);
@@ -573,7 +600,9 @@
         bag.push(...copy);
       }
 
-      function createPieceByKey(key) {
+      function spawnPiece(forcedKey = null) {
+        if (!forcedKey && bag.length === 0) refillBag();
+        const key = forcedKey || bag.pop();
         const def = SHAPES[key];
         const matrix = def.matrix.map(r => [...r]);
         return {
@@ -583,12 +612,6 @@
           x: Math.floor((COLS - matrix[0].length) / 2),
           y: key === "I" ? -1 : 0
         };
-      }
-
-      function spawnPiece() {
-        if (bag.length === 0) refillBag();
-        const key = bag.pop();
-        return createPieceByKey(key);
       }
 
       function isValid(matrix, ox, oy) {
@@ -602,34 +625,6 @@
           }
         }
         return true;
-      }
-
-      function swapPiece() {
-        if (paused || gameOver || !current || !nextPiece) return;
-        const currentKey = current.key;
-        const candidate = createPieceByKey(nextPiece.key);
-        candidate.x = Math.max(0, Math.min(COLS - candidate.matrix[0].length, current.x));
-        candidate.y = current.y;
-
-        let placed = false;
-        for (const k of [0, -1, 1, -2, 2]) {
-          if (isValid(candidate.matrix, candidate.x + k, candidate.y)) {
-            candidate.x += k;
-            placed = true;
-            break;
-          }
-        }
-
-        if (!placed) {
-          const fallback = createPieceByKey(nextPiece.key);
-          if (!isValid(fallback.matrix, fallback.x, fallback.y)) return;
-          current = fallback;
-        } else {
-          current = candidate;
-        }
-
-        nextPiece = createPieceByKey(currentKey);
-        drawMini(nextCtx, nextCanvas, nextPiece.key);
       }
 
       function getDropY() {
@@ -705,6 +700,7 @@
           overlayTitle.textContent = "Խաղն ավարտվեց!!!";
           overlayBtn.textContent = "Սկսել";
           overlay.classList.add("active");
+          updateUndoButton();
         }
       }
 
@@ -713,14 +709,24 @@
           for (let c = 0; c < current.matrix[r].length; c++) {
             if (!current.matrix[r][c]) continue;
             const by = current.y + r;
-            const bx = current.x + c;
             if (by < 0) {
               gameOver = true;
               overlayTitle.textContent = "Խաղն ավարտվեց!!!";
               overlayBtn.textContent = "Սկսել";
               overlay.classList.add("active");
+              updateUndoButton();
               return;
             }
+          }
+        }
+
+        saveUndoState();
+
+        for (let r = 0; r < current.matrix.length; r++) {
+          for (let c = 0; c < current.matrix[r].length; c++) {
+            if (!current.matrix[r][c]) continue;
+            const by = current.y + r;
+            const bx = current.x + c;
             board[by][bx] = current.color;
           }
         }
@@ -857,12 +863,14 @@
           btnPause.textContent = "⏸️ Դադար";
           lastTime = performance.now();
         }
+        updateUndoButton();
       }
 
       function reset() {
         resizeBoardCanvas(true);
         board = createGrid();
         bag = [];
+        undoHistory = [];
         score = 0;
         paused = false;
         gameOver = false;
@@ -874,6 +882,7 @@
         current = spawnPiece();
         nextPiece = spawnPiece();
         drawMini(nextCtx, nextCanvas, nextPiece.key);
+        updateUndoButton();
         drawBoard();
       }
 
@@ -919,7 +928,7 @@
       bindBtn("btn-right", () => moveX(1));
       bindBtn("btn-rotate", () => rotatePiece());
       bindBtn("btn-fast-drop", () => fastDrop());
-      bindBtn("btn-swap", () => swapPiece());
+      bindBtn("btn-undo", () => undoLastPlacement());
       bindBtn("btn-pause", () => togglePause());
 
       overlayBtn.addEventListener("click", () => {
@@ -943,8 +952,8 @@
         else if (e.code === "ArrowRight") moveX(1);
         else if (e.code === "ArrowDown") stepDown();
         else if (e.code === "KeyR") rotatePiece();
-        else if (e.code === "KeyZ" || e.code === "KeyC") swapPiece();
         else if (e.code === "Space") fastDrop();
+        else if (e.code === "KeyZ") undoLastPlacement();
         drawBoard();
       });
 
