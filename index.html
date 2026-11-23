@@ -435,7 +435,7 @@
       <canvas id="board"></canvas>
       <div class="overlay" id="overlay">
         <h2 id="overlay-title">Դադարեցված է!!!</h2>
-        <button class="overlay-btn" id="overlay-btn" type="button">⏯️ Սկսել</button>
+        <button class="overlay-btn" id="overlay-btn" type="button">▶️ Սկսել</button>
       </div>
     </div>
 
@@ -831,7 +831,7 @@
         if (!isValid(current.matrix, current.x, current.y)) {
           gameOver = true;
           overlayTitle.textContent = "Խաղն ավարտվեց!!!";
-          overlayBtn.textContent = "⏯️ Սկսել";
+          overlayBtn.textContent = "▶️ Սկսել";
           overlay.classList.add("active");
           updateUndoButton();
         }
@@ -845,7 +845,7 @@
             if (by < 0) {
               gameOver = true;
               overlayTitle.textContent = "Խաղն ավարտվեց!!!";
-              overlayBtn.textContent = "⏯️ Սկսել";
+              overlayBtn.textContent = "▶️ Սկսել";
               overlay.classList.add("active");
               updateUndoButton();
               return;
@@ -990,9 +990,9 @@
         paused = !paused;
         if (paused) {
           overlayTitle.textContent = "Խաղը դադարեցված է!";
-          overlayBtn.textContent = "⏯️ Սկսել";
+          overlayBtn.textContent = "▶️ Սկսել";
           overlay.classList.add("active");
-          btnPause.textContent = "⏯️ Սկսել";
+          btnPause.textContent = "▶️ Սկսել";
         } else {
           overlay.classList.remove("active");
           btnPause.textContent = "⏸️ Դադար";
