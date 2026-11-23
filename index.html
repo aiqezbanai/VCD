@@ -503,6 +503,29 @@
       let cellH = 24;
       let blockSize = 24;
 
+      function loadStoredScore() {
+        try {
+          const saved = parseInt(window.name || "0", 10);
+          return Number.isFinite(saved) && saved > 0 ? saved : 0;
+        } catch (_) {
+          return 0;
+        }
+      }
+
+      function saveStoredScore(val) {
+        try {
+          window.name = String(val);
+        } catch (_) {}
+      }
+
+      function setScoreValue(newScore) {
+        if (newScore > score) {
+          score = newScore;
+          saveStoredScore(score);
+        }
+        scoreEl.textContent = score;
+      }
+
       function updateUndoButton() {
         btnUndo.disabled = undoHistory.length === 0 || paused || gameOver;
       }
@@ -524,6 +547,7 @@
         const prev = undoHistory.pop();
         board = prev.board.map(row => [...row]);
         score = prev.score;
+        saveStoredScore(score);
         scoreEl.textContent = score;
         if (current) {
           bag.push(current.key);
@@ -686,8 +710,7 @@
           }
         }
         if (cleared > 0) {
-          score += cleared * 100;
-          scoreEl.textContent = score;
+          setScoreValue(score + cleared * 100);
         }
       }
 
@@ -871,12 +894,12 @@
         board = createGrid();
         bag = [];
         undoHistory = [];
-        score = 0;
+        score = loadStoredScore();
         paused = false;
         gameOver = false;
         dropCounter = 0;
         lastTime = performance.now();
-        scoreEl.textContent = "0";
+        scoreEl.textContent = String(score);
         overlay.classList.remove("active");
         btnPause.textContent = "⏸️ Դադար";
         current = spawnPiece();
