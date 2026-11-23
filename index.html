@@ -43,7 +43,7 @@
     .shell {
       width: 100%;
       max-width: min(470px, 100vw - 16px);
-      height: 100%;
+      height: calc(100dvh - 12px);
       max-height: calc(100dvh - 12px);
       background: #f4f6f9;
       border-radius: clamp(18px, 4vw, 26px);
@@ -986,4 +986,159 @@
         if (!key) return;
         const def = SHAPES[key];
         const m = def.matrix;
-        let minR = m
+        let minR = m.length, maxR = 0, minC = m[0].length, maxC = 0;
+        for (let r = 0; r < m.length; r++) {
+          for (let c = 0; c < m[r].length; c++) {
+            if (m[r][c]) {
+              minR = Math.min(minR, r);
+              maxR = Math.max(maxR, r);
+              minC = Math.min(minC, c);
+              maxC = Math.max(maxC, c);
+            }
+          }
+        }
+        const s = 9;
+        const w = (maxC - minC + 1) * s;
+        const h = (maxR - minR + 1) * s;
+        const ox = (canvas.width - w) / 2 - minC * s;
+        const oy = (canvas.height - h) / 2 - minR * s;
+        context.save();
+        context.translate(ox, oy);
+        for (let r = 0; r < m.length; r++) {
+          for (let c = 0; c < m[r].length; c++) {
+            if (m[r][c]) {
+              context.fillStyle = def.color;
+              context.beginPath();
+              drawRoundRect(context, c * s + 1, r * s + 1, s - 2, s - 2, 2);
+              context.fill();
+            }
+          }
+        }
+        context.restore();
+      }
+
+      function togglePause() {
+        if (gameOver) return;
+        paused = !paused;
+        if (paused) {
+          overlayTitle.textContent = "Խաղը դադարեցված է!";
+          overlayBtn.textContent = "▶️ Սկսել";
+          overlay.classList.add("active");
+          btnPause.textContent = "▶️ Սկսել";
+        } else {
+          overlay.classList.remove("active");
+          btnPause.textContent = "⏸️ Դադար";
+          lastTime = performance.now();
+        }
+        updateUndoButton();
+      }
+
+      function reset() {
+        resizeBoardCanvas(true);
+        board = createGrid();
+        bag = [];
+        undoHistory = [];
+        score = loadStoredScore();
+        highScore = loadStoredHighScore();
+        paused = false;
+        gameOver = false;
+        dropCounter = 0;
+        lastTime = performance.now();
+        highScoreEl.textContent = String(highScore);
+        scoreEl.textContent = String(score);
+        overlay.classList.remove("active");
+        btnPause.textContent = "⏸️ Դադար";
+        current = spawnPiece();
+        nextPiece = spawnPiece();
+        drawMini(nextCtx, nextCanvas, nextPiece.key);
+        updateUndoButton();
+        drawBoard();
+      }
+
+      function loop(time = 0) {
+        const dt = lastTime ? (time - lastTime) : 0;
+        lastTime = time;
+        if (!paused && !gameOver && current) {
+          dropCounter += dt;
+          if (dropCounter >= getDropInterval()) {
+            if (isValid(current.matrix, current.x, current.y + 1)) {
+              current.y++;
+            } else {
+              lockPiece();
+            }
+            dropCounter = 0;
+          }
+          drawBoard();
+        }
+        requestAnimationFrame(loop);
+      }
+
+      function bindBtn(id, fn) {
+        const el = document.getElementById(id);
+        el.addEventListener("pointerdown", (e) => {
+          e.preventDefault();
+          fn();
+          drawBoard();
+        });
+      }
+
+      speedBtns.forEach(btn => {
+        btn.addEventListener("pointerdown", (e) => {
+          e.preventDefault();
+          setSpeedMode(btn.dataset.speed);
+        });
+        btn.addEventListener("click", () => {
+          setSpeedMode(btn.dataset.speed);
+        });
+      });
+
+      bindBtn("btn-left", () => moveX(-1));
+      bindBtn("btn-down", () => stepDown());
+      bindBtn("btn-right", () => moveX(1));
+      bindBtn("btn-rotate", () => rotatePiece());
+      bindBtn("btn-fast-drop", () => fastDrop());
+      bindBtn("btn-undo", () => undoLastPlacement());
+      bindBtn("btn-pause", () => togglePause());
+
+      overlayBtn.addEventListener("click", () => {
+        if (gameOver) {
+          reset();
+        } else if (paused) {
+          togglePause();
+        }
+      });
+
+      document.addEventListener("keydown", (e) => {
+        if (["ArrowLeft", "ArrowRight", "ArrowDown", "ArrowUp", "Space"].includes(e.code)) {
+          e.preventDefault();
+        }
+        if (e.code === "KeyP") {
+          togglePause();
+          return;
+        }
+        if (paused || gameOver) return;
+        if (e.code === "ArrowLeft") moveX(-1);
+        else if (e.code === "ArrowRight") moveX(1);
+        else if (e.code === "ArrowDown") stepDown();
+        else if (e.code === "KeyR") rotatePiece();
+        else if (e.code === "Space") fastDrop();
+        else if (e.code === "KeyZ") undoLastPlacement();
+        drawBoard();
+      });
+
+      if (typeof ResizeObserver !== "undefined") {
+        const ro = new ResizeObserver(() => resizeBoardCanvas(false));
+        ro.observe(boardFrame);
+      }
+      window.addEventListener("resize", () => resizeBoardCanvas(false));
+      setupTetrisOneAppIdentity();
+      reset();
+      requestAnimationFrame(() => {
+        resizeBoardCanvas(false);
+        drawBoard();
+      });
+      requestAnimationFrame(loop);
+    })();
+  </script>
+</body>
+</html>
