@@ -469,9 +469,8 @@
         "1": BASE_INTERVAL,
         "2": 320
       };
-      const SCORE_CAP = 30000;
       const SCORE_STORAGE_KEY = "tetris_persistent_score_v1";
-      const HIGH_SCORE_STORAGE_KEY = "tetris_high_score_above_30k_v1";
+      const HIGH_SCORE_STORAGE_KEY = "tetris_high_score_v1";
 
       const boardFrame = document.getElementById("board-frame");
       const boardCanvas = document.getElementById("board");
@@ -494,7 +493,13 @@
         S: { color: "#22c55e", matrix: [[0,1,1],[1,1,0],[0,0,0]] },
         Z: { color: "#ef4444", matrix: [[1,1,0],[0,1,1],[0,0,0]] },
         J: { color: "#3b82f6", matrix: [[1,0,0],[1,1,1],[0,0,0]] },
-        L: { color: "#f97316", matrix: [[0,0,1],[1,1,1],[0,0,0]] }
+        L: { color: "#f97316", matrix: [[0,0,1],[1,1,1],[0,0,0]] },
+        P: { color: "#a855f7", matrix: [[1,1],[1,1],[1,0]] },
+        U: { color: "#ec4899", matrix: [[1,0,1],[1,1,1],[0,0,0]] },
+        W: { color: "#14b8a6", matrix: [[1,0,0],[1,1,0],[0,1,1]] },
+        X: { color: "#f43f5e", matrix: [[0,1,0],[1,1,1],[0,1,0]] },
+        M1: { color: "#0ea5e9", matrix: [[1]] },
+        D2: { color: "#84cc16", matrix: [[1,1]] }
       };
       const KEYS = Object.keys(SHAPES);
 
@@ -614,7 +619,7 @@
         try {
           const raw = window.localStorage.getItem(SCORE_STORAGE_KEY);
           const parsed = parseInt(raw || "0", 10);
-          if (!Number.isFinite(parsed) || parsed < 0 || parsed >= SCORE_CAP) {
+          if (!Number.isFinite(parsed) || parsed < 0) {
             window.localStorage.setItem(SCORE_STORAGE_KEY, "0");
             return 0;
           }
@@ -625,7 +630,7 @@
       }
 
       function saveStoredScore(val) {
-        const normalized = val >= SCORE_CAP ? 0 : Math.max(0, val);
+        const normalized = Math.max(0, val);
         try {
           window.localStorage.setItem(SCORE_STORAGE_KEY, String(normalized));
         } catch (_) {}
@@ -636,7 +641,7 @@
         try {
           const raw = window.localStorage.getItem(HIGH_SCORE_STORAGE_KEY);
           const parsed = parseInt(raw || "0", 10);
-          if (!Number.isFinite(parsed) || parsed <= SCORE_CAP) {
+          if (!Number.isFinite(parsed) || parsed < 0) {
             return 0;
           }
           return parsed;
@@ -646,23 +651,21 @@
       }
 
       function saveStoredHighScore(val) {
+        const normalized = Math.max(0, val);
         try {
-          window.localStorage.setItem(HIGH_SCORE_STORAGE_KEY, String(val));
+          window.localStorage.setItem(HIGH_SCORE_STORAGE_KEY, String(normalized));
         } catch (_) {}
       }
 
       function setScoreValue(newScore) {
-        if (newScore >= SCORE_CAP) {
-          if (newScore > SCORE_CAP && newScore > highScore) {
-            highScore = newScore;
+        if (newScore > score) {
+          score = newScore;
+          saveStoredScore(score);
+          if (score > highScore) {
+            highScore = score;
             saveStoredHighScore(highScore);
             highScoreEl.textContent = String(highScore);
           }
-          score = 0;
-          saveStoredScore(0);
-        } else if (newScore > score) {
-          score = newScore;
-          saveStoredScore(score);
         }
         scoreEl.textContent = String(score);
       }
