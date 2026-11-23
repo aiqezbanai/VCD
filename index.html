@@ -43,7 +43,7 @@
     .shell {
       width: 100%;
       max-width: min(470px, 100vw - 16px);
-      height: calc(100dvh - 12px);
+      height: 100%;
       max-height: calc(100dvh - 12px);
       background: #f4f6f9;
       border-radius: clamp(18px, 4vw, 26px);
@@ -1055,9 +1055,10 @@
         drawBoard();
       }
 
-      function loop(time = 0) {
-        const dt = lastTime ? (time - lastTime) : 0;
-        lastTime = time;
+      function loop(time) {
+        const now = typeof time === "number" ? time : performance.now();
+        const dt = lastTime > 0 ? Math.max(0, now - lastTime) : 0;
+        lastTime = now;
         if (!paused && !gameOver && current) {
           dropCounter += dt;
           if (dropCounter >= getDropInterval()) {
@@ -1126,17 +1127,21 @@
         drawBoard();
       });
 
-      if (typeof ResizeObserver !== "undefined") {
-        const ro = new ResizeObserver(() => resizeBoardCanvas(false));
-        ro.observe(boardFrame);
+      function ensureStarted() {
+        const { innerW, innerH } = getInnerMetrics();
+        if (innerW > 0 && innerH > 0 && (!current || boardCanvas.width === 0 || boardCanvas.height === 0)) {
+          reset();
+        } else {
+          resizeBoardCanvas(false);
+        }
       }
+
       window.addEventListener("resize", () => resizeBoardCanvas(false));
+      window.addEventListener("load", ensureStarted);
+      document.addEventListener("DOMContentLoaded", ensureStarted);
       setupTetrisOneAppIdentity();
       reset();
-      requestAnimationFrame(() => {
-        resizeBoardCanvas(false);
-        drawBoard();
-      });
+      lastTime = performance.now();
       requestAnimationFrame(loop);
     })();
   </script>
